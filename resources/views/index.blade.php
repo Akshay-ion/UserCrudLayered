@@ -10,7 +10,7 @@
 <body>
     <div class="container mt-5">
         <div class="d-none alert alert-dismissible text-center" id="message">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <div class="card">
             <div class="card-header d-flex justify-content-between">
@@ -285,6 +285,7 @@
         }
 
         function deleteUser(id){
+
             if(!confirm("Are you sure you want to delete this user?")) return;
 
             fetch(`/user/${id}`, {
@@ -298,14 +299,24 @@
             .then(response => response.json())
             .then(data => {
 
-                document.getElementById(`user-row-${id}`)?.remove();
+                const row = document.getElementById(`user-row-${id}`);
+                if(row) row.remove();
+
+                // check remaining rows
+                const rows = document.querySelectorAll("#usersTable tr");
+
+                if(rows.length === 0 && currentPage > 1){
+                    currentPage--;
+                }
 
                 getUsers(currentPage, currentSearch);
-                
+
                 message.classList.remove("d-none");
                 message.classList.add("alert-success");
-                message.innerHTML = data.message;
-
+                message.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" onclick="closeMessage()"></button>
+                `;
             })
             .catch(error => console.error(error));
         }
