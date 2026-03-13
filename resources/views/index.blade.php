@@ -62,7 +62,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="storeForm()">Save</button>
+                        <button type="button" class="btn btn-primary" id="createBtn" onclick="storeForm()">Save</button>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="updateForm()">Update</button>
+                        <button type="button" class="btn btn-primary" id="updateBtn" onclick="updateForm()">Update</button>
                     </div>
                 </div>
             </div>
@@ -140,7 +140,7 @@
                                 <td>${user.email}</td>
                                 <td>
                                     <div class="btn btn-sm btn-info" onclick="editUser(${user.id})">Edit</div>
-                                    <div class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">Delete</div>
+                                    <div class="btn btn-sm btn-danger user-row-${user.id}" onclick="deleteUser(${user.id})">Delete</div>
                                 </td>
                             </tr>
                         `;
@@ -212,6 +212,12 @@
         const createModalMessage = document.getElementById("create-modal-message");
 
         function storeForm() {
+
+            const createBtn = document.getElementById("createBtn");
+
+            // Disable button and show "Saving..."
+            createBtn.disabled = true;
+            createBtn.innerText = "Saving...";
 
             // Reset previous messages
             username.classList.remove("is-invalid");
@@ -293,6 +299,10 @@
                         <button type="button" class="btn-close" aria-label="Close" onclick="closeModalMessage()"></button>
                     `;
                 }
+            })
+            .finally(() => {
+                createBtn.disabled = false;
+                createBtn.innerText = "Save";
             });
         }
 
@@ -316,8 +326,12 @@
         }
 
         function deleteUser(id){
+            const deleteBtn = document.querySelector(`#user-row-${id} .btn-danger`);
 
             if(!confirm("Are you sure you want to delete this user?")) return;
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerText = "Deleting...";
 
             fetch(`/user/${id}`, {
                 method: "DELETE",
@@ -349,7 +363,11 @@
                     <button type="button" class="btn-close" onclick="closeMessage()"></button>
                 `;
             })
-            .catch(error => console.error(error));
+            .catch(error => console.error(error))
+            .finally(() => {
+                deleteBtn.disabled = false;
+                deleteBtn.innerText = "Delete";
+            });
         }
 
         function editUser(userId){
@@ -385,6 +403,12 @@
         }
 
         function updateForm() {
+
+            const updateBtn = document.getElementById("updateBtn");
+
+            updateBtn.disabled = true;
+            updateBtn.innerText = "Updating...";
+
             const userIdInput = document.getElementById("userId");
             const username = document.getElementById("edit-username");
             const usernameMessage = document.getElementById("edit-username-message");
@@ -483,6 +507,10 @@
                         <button type="button" class="btn-close" aria-label="Close" onclick="closeEditModalMessage()"></button>
                     `;
                 }
+            })
+            .finally(() => {
+                updateBtn.disabled = false;
+                updateBtn.innerText = "Update";
             });
         }
 
