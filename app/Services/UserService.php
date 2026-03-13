@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\UserDTO;
 use App\Repositories\UserRepository;
+use function Laravel\Prompts\search;
 
 class UserService
 {
@@ -14,9 +15,9 @@ class UserService
         $this->repo = $repo;
     }
 
-    public function getUsers($perPage = 5)
+    public function getUsers($perPage = 5, $search = null)
     {
-        return $this->repo->all($perPage);
+        return $this->repo->all($perPage, $search);
     }
 
     public function createUser(UserDTO $dto)

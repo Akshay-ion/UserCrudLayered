@@ -6,9 +6,18 @@ use App\Models\User;
 
 class UserRepository
 {
-    public function all($perPage = 5)
+    public function all($perPage = 5, $search = null)
     {
-        return User::select('id', 'name', 'email')->paginate($perPage);
+        $query = User::query();
+
+        if($search){
+            $query->where(function($q) use ($search){
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function create($data)

@@ -19,9 +19,9 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userService->getUsers(5);
+        $users = $this->userService->getUsers(5, $request->search);
 
         return response()->json([
             'status' => 200,

@@ -20,6 +20,7 @@
                 </button>
             </div>
             <div class="card-body">
+                <input type="text" class="form-control" id="search" placeholder="Search Users">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -73,9 +74,20 @@
             getUsers();
         });
 
-        function getUsers(page = 1){
+        document.getElementById("search").addEventListener("keyup", function(){
 
-            fetch(`/user?page=${page}`, {
+            let search = this.value;
+
+            getUsers(1, search);
+        });
+
+        let currentSearch = document.getElementById("search").value;
+
+        function getUsers(page = 1, search = currentSearch){
+
+            currentSearch = search;
+
+            fetch(`/user?page=${page}&search=${search}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json"
