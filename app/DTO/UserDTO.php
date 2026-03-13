@@ -17,7 +17,7 @@ class UserDTO
     {
         return new self(
             $request->name,
-            $request->email
+            $request->email,
         );
     }
 }

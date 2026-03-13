@@ -21,4 +21,12 @@ class UserService
             'email' => $dto->email
         ]);
     }
+
+    public function udpateUser(UserDTO $dto)
+    {
+        return $this->repo->create([
+            'name' => $dto->name,
+            'email' => $dto->email
+        ]);
+    }
 }
