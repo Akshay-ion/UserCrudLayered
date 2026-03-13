@@ -35,4 +35,9 @@ class UserService
             'email' => $dto->email
         ]);
     }
+
+    public function deleteUser($id)
+    {
+        return $this->repo->deleteUser($id);
+    }
 }

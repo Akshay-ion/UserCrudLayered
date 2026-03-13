@@ -24,4 +24,11 @@ class UserRepository
     {
         return User::create($data);
     }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+
+        return $user->delete();
+    }
 }

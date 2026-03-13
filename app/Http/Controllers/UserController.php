@@ -52,11 +52,38 @@ class UserController extends Controller
 
     public function update(StoreUserRequest $request)
     {
-        $dto = UserDTO::fromRequest($request);
+        try{
+            $dto = UserDTO::fromRequest($request);
 
-        $this->userService->createUser($dto);
+            $this->userService->udpateUser($dto);
 
-        return back();
+            return response()->json([
+                'status' => 200,
+                'message' => 'User Updated Successfully'
+            ]);
+
+        }catch(Exception $e){
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something Went Wrong: '. $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try{
+            $this->userService->deleteUser($id);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'User deleted successfully'
+            ]);
+
+        }catch(Exception $e){
+            dd($e);
+        }
+
     }
 
 }

@@ -70,6 +70,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
 
+        currentPage = 1;
+
         document.addEventListener("DOMContentLoaded", function () {
             getUsers();
         });
@@ -78,46 +80,36 @@
 
             let search = this.value;
 
-            getUsers(1, search);
+            getUsers(currentPage, search);
         });
 
         let currentSearch = document.getElementById("search").value;
 
         function getUsers(page = 1, search = currentSearch){
-
+            currentPage = page; // FIXED
             currentSearch = search;
 
-            fetch(`/user?page=${page}&search=${search}`, {
+            fetch(`/user?page=${page}&search=${search}&_=${Date.now()}`, { // prevent caching
                 method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                }
+                headers: { "Accept": "application/json" }
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
-
                 let users = data.data.data;
                 let html = "";
 
                 if(users.length === 0){
-                    html = `<tr>
-                                <td colspan="3" class="text-center">No Users Found</td>
-                            </tr>`;
-                }else{
+                    html = `<tr><td colspan="4" class="text-center">No Users Found</td></tr>`;
+                } else {
                     users.forEach((user, index) => {
                         html += `
-                            <tr>
+                            <tr id="user-row-${user.id}">
                                 <td>${index + 1}</td>
                                 <td>${user.name}</td>
                                 <td>${user.email}</td>
                                 <td>
-                                    <div class="btn btn-sm btn-info" onclick="editUser()">
-                                        Edit
-                                    </div>
-                                    <div class="btn btn-sm btn-danger" onclick="deleteUser()">
-                                        Delete
-                                    </div>
+                                    <div class="btn btn-sm btn-info" onclick="editUser(${user.id})">Edit</div>
+                                    <div class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">Delete</div>
                                 </td>
                             </tr>
                         `;
@@ -125,13 +117,9 @@
                 }
 
                 document.getElementById("usersTable").innerHTML = html;
-
                 renderPagination(data.data);
-
             })
-            .catch(error => {
-                console.error("Error:", error);
-            });
+            .catch(error => console.error("Error:", error));
         }
 
         function renderPagination(data){
@@ -244,6 +232,7 @@
                     <button type="button" class="btn-close" aria-label="Close" onclick="closeMessage()"></button>
                 `;
 
+                getUsers(currentPage, currentSearch);
                 createModal.hide();
                 resetStoreForm();
             })
@@ -293,6 +282,32 @@
 
         function closeModalMessage() {
             createModalMessage.classList.add("d-none");
+        }
+
+        function deleteUser(id){
+            if(!confirm("Are you sure you want to delete this user?")) return;
+
+            fetch(`/user/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+
+                document.getElementById(`user-row-${id}`)?.remove();
+
+                getUsers(currentPage, currentSearch);
+                
+                message.classList.remove("d-none");
+                message.classList.add("alert-success");
+                message.innerHTML = data.message;
+
+            })
+            .catch(error => console.error(error));
         }
     </script>
 </body>
