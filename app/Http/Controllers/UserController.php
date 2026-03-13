@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTO\UserDTO;
 use App\Http\Requests\StoreUserRequest;
+use App\Repositories\UserRepository;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Cache\Repository;
@@ -18,8 +19,15 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(){
-        return view('index');
+    public function index()
+    {
+        $users = $this->userService->getUsers(5);
+
+        return response()->json([
+            'status' => 200,
+            'data' => $users
+        ]);
+
     }
 
     public function store(StoreUserRequest $request)

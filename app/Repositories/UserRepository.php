@@ -6,9 +6,9 @@ use App\Models\User;
 
 class UserRepository
 {
-    public function all()
+    public function all($perPage = 5)
     {
-        return User::all();
+        return User::select('id', 'name', 'email')->paginate($perPage);
     }
 
     public function create($data)

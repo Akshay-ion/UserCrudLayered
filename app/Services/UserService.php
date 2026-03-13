@@ -14,6 +14,11 @@ class UserService
         $this->repo = $repo;
     }
 
+    public function getUsers($perPage = 5)
+    {
+        return $this->repo->all($perPage);
+    }
+
     public function createUser(UserDTO $dto)
     {
         return $this->repo->create([

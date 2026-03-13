@@ -20,7 +20,20 @@
                 </button>
             </div>
             <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
 
+                    </tbody>
+                </table>
+                <div id="pagination" class="mt-3"></div>
             </div>
         </div>
 
@@ -55,6 +68,76 @@
         </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            getUsers();
+        });
+
+        function getUsers(page = 1){
+
+            fetch(`/user?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                let users = data.data.data;
+                let html = "";
+
+                if(users.length === 0){
+                    html = `<tr>
+                                <td colspan="3" class="text-center">No Users Found</td>
+                            </tr>`;
+                }else{
+                    users.forEach((user, index) => {
+                        html += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>
+                                    <div class="btn btn-sm btn-info" onclick="editUser()">
+                                        Edit
+                                    </div>
+                                    <div class="btn btn-sm btn-danger" onclick="deleteUser()">
+                                        Delete
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById("usersTable").innerHTML = html;
+
+                renderPagination(data);
+
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+
+        function renderPagination(data){
+
+            let html = "";
+
+            for(let i = 1; i <= data.last_page; i++){
+
+                html += `
+                    <button onclick="getUsers(${i})"
+                        class="btn btn-sm ${i == data.current_page ? 'btn-primary' : 'btn-secondary'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            document.getElementById("pagination").innerHTML = html;
+        }
 
         const message = document.getElementById("message");
         const createModalEl = document.getElementById('createModal');
@@ -91,7 +174,7 @@
                 return;
             }
 
-            fetch("{{ route('store') }}", {
+            fetch("{{ route('user.store') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -103,50 +186,50 @@
                     email: email.value,
                 })
             })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) throw data;
-                    return data;
-                })
-                .then(data => {
-                    // Show success message
-                    message.classList.remove("d-none", "alert-danger");
-                    message.classList.add("alert-success", "alert-dismissible", "fade", "show");
-                    message.innerHTML = `
-                        ${data.message}
-                        <button type="button" class="btn-close" aria-label="Close" onclick="closeMessage()"></button>
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw data;
+                return data;
+            })
+            .then(data => {
+                // Show success message
+                message.classList.remove("d-none", "alert-danger");
+                message.classList.add("alert-success", "alert-dismissible", "fade", "show");
+                message.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" aria-label="Close" onclick="closeMessage()"></button>
+                `;
+
+                createModal.hide();
+                resetStoreForm();
+            })
+            .catch(error => {
+                // Handle validation errors
+                if (error.errors) {
+                    if (error.errors.name) {
+                        username.classList.add("is-invalid");
+                        usernameMessage.classList.remove("d-none");
+                        usernameMessage.classList.add("text-danger");
+                        usernameMessage.innerText = error.errors.name[0];
+                    }
+                    if (error.errors.email) {
+                        email.classList.add("is-invalid");
+                        emailMessage.classList.remove("d-none");
+                        emailMessage.classList.add("text-danger");
+                        emailMessage.innerText = error.errors.email[0];
+                    }
+                }
+
+                // General error message in modal
+                if (error.message) {
+                    createModalMessage.classList.remove("d-none");
+                    createModalMessage.classList.add("alert", "alert-danger", "alert-dismissible", "fade", "show");
+                    createModalMessage.innerHTML = `
+                        ${error.message}
+                        <button type="button" class="btn-close" aria-label="Close" onclick="closeModalMessage()"></button>
                     `;
-
-                    createModal.hide();
-                    resetStoreForm();
-                })
-                .catch(error => {
-                    // Handle validation errors
-                    if (error.errors) {
-                        if (error.errors.name) {
-                            username.classList.add("is-invalid");
-                            usernameMessage.classList.remove("d-none");
-                            usernameMessage.classList.add("text-danger");
-                            usernameMessage.innerText = error.errors.name[0];
-                        }
-                        if (error.errors.email) {
-                            email.classList.add("is-invalid");
-                            emailMessage.classList.remove("d-none");
-                            emailMessage.classList.add("text-danger");
-                            emailMessage.innerText = error.errors.email[0];
-                        }
-                    }
-
-                    // General error message in modal
-                    if (error.message) {
-                        createModalMessage.classList.remove("d-none");
-                        createModalMessage.classList.add("alert", "alert-danger", "alert-dismissible", "fade", "show");
-                        createModalMessage.innerHTML = `
-                            ${error.message}
-                            <button type="button" class="btn-close" aria-label="Close" onclick="closeModalMessage()"></button>
-                        `;
-                    }
-                });
+                }
+            });
         }
 
         function resetStoreForm() {
