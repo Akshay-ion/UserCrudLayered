@@ -51,12 +51,12 @@
 
                         <div class="form-group">
                             <label for="username" class="form-label">Username:</label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" value="Akshay">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username">
                             <span id="username-message" class="d-none text-bold"></span>
                         </div>
                         <div class="form-group">
                             <label for="email" class="form-label">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" value="akshay@example.com">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
                             <span id="email-message" class="d-none text-bold"></span>
                         </div>
                     </div>
