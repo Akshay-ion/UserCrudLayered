@@ -11,14 +11,20 @@ class UserRepository
     {
         $query = User::query();
 
-        if($search){
+        if ($search) {
             $query->where(function($q) use ($search){
                 $q->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%");
             });
+
+            // Reset to first page if searching
+            $page = request()->get('page', 1);
+            if ($page > 1) {
+                request()->merge(['page' => 1]);
+            }
         }
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->appends(request()->all());
     }
 
     public function create($data)
