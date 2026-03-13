@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- create Modal -->
         <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -63,6 +63,37 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" onclick="storeForm()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editModalLabel">Edit User</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-none alert" id="edit-modal-message"></div>
+
+                        <div class="form-group">
+                            <label for="edit-username" class="form-label">Username:</label>
+                            <input type="text" class="form-control" id="edit-username" name="username" placeholder="Enter Username" value="Akshay">
+                            <span id="edit-username-message" class="d-none text-bold"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-email" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="edit-email" name="email" placeholder="Enter Email" value="akshay@example.com">
+                            <span id="edit-email-message" class="d-none text-bold"></span>
+                        </div>
+                        <input type="hidden" id="userId" value="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="updateForm()">Update</button>
                     </div>
                 </div>
             </div>
@@ -319,6 +350,145 @@
                 `;
             })
             .catch(error => console.error(error));
+        }
+
+        function editUser(userId){
+            const editModalEl = document.getElementById('editModal');
+            let editModal = bootstrap.Modal.getInstance(editModalEl) || new bootstrap.Modal(editModalEl);
+            const userIdInput = document.getElementById("userId");
+            const username = document.getElementById("edit-username");
+            const usernameMessage = document.getElementById("edit-username-message");
+            const email = document.getElementById("edit-email");
+            const emailMessage = document.getElementById("edit-email-message");
+            const editModalMessage = document.getElementById("edit-modal-message");
+
+            const url = "{{ route('user.show', ':id') }}".replace(':id', userId);
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                if(data.status === 200){
+                    userIdInput.value = data.data.id
+                    username.value = data.data.name;
+                    email.value = data.data.email;
+
+                    editModal.show();
+                }
+            })
+            .catch(error => console.error(error));
+        }
+
+        function updateForm() {
+            const userIdInput = document.getElementById("userId");
+            const username = document.getElementById("edit-username");
+            const usernameMessage = document.getElementById("edit-username-message");
+            const email = document.getElementById("edit-email");
+            const emailMessage = document.getElementById("edit-email-message");
+            const editModalMessage = document.getElementById("edit-modal-message");
+
+            // Reset previous errors
+            username.classList.remove("is-invalid");
+            usernameMessage.classList.add("d-none");
+            email.classList.remove("is-invalid");
+            emailMessage.classList.add("d-none");
+            editModalMessage.classList.add("d-none");
+            editModalMessage.classList.remove("alert", "alert-danger");
+
+            if (!username.value) {
+                username.classList.add("is-invalid");
+                usernameMessage.classList.remove("d-none");
+                usernameMessage.classList.add("text-danger");
+                usernameMessage.innerText = "Username is required";
+                return;
+            }
+
+            if (!email.value) {
+                email.classList.add("is-invalid");
+                emailMessage.classList.remove("d-none");
+                emailMessage.classList.add("text-danger");
+                emailMessage.innerText = "Email is required";
+                return;
+            }
+
+            const url = `/user/${userIdInput.value}`; // Laravel RESTful update route
+
+            fetch(url, {
+                method: 'PUT', // Use PUT for updating
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    name: username.value,
+                    email: email.value
+                })
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw data;
+                return data;
+            })
+            .then(data => {
+                // ✅ Update the row dynamically without full table reload
+                const row = document.getElementById(`user-row-${userIdInput.value}`);
+                if(row) {
+                    row.children[1].innerText = username.value; // Name column
+                    row.children[2].innerText = email.value;    // Email column
+                }
+
+                // Show success message
+                const message = document.getElementById("message");
+                message.classList.remove("d-none", "alert-danger");
+                message.classList.add("alert-success", "alert-dismissible", "fade", "show");
+                message.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" aria-label="Close" onclick="closeMessage()"></button>
+                `;
+
+                // Hide edit modal
+                const editModalEl = document.getElementById('editModal');
+                const editModal = bootstrap.Modal.getInstance(editModalEl);
+                editModal.hide();
+            })
+            .catch(error => {
+                // Handle validation errors
+                if (error.errors) {
+                    if (error.errors.name) {
+                        username.classList.add("is-invalid");
+                        usernameMessage.classList.remove("d-none");
+                        usernameMessage.classList.add("text-danger");
+                        usernameMessage.innerText = error.errors.name[0];
+                    }
+                    if (error.errors.email) {
+                        email.classList.add("is-invalid");
+                        emailMessage.classList.remove("d-none");
+                        emailMessage.classList.add("text-danger");
+                        emailMessage.innerText = error.errors.email[0];
+                    }
+                }
+
+                // General error message
+                if (error.message) {
+                    editModalMessage.classList.remove("d-none");
+                    editModalMessage.classList.add("alert", "alert-danger", "alert-dismissible", "fade", "show");
+                    editModalMessage.innerHTML = `
+                        ${error.message}
+                        <button type="button" class="btn-close" aria-label="Close" onclick="closeEditModalMessage()"></button>
+                    `;
+                }
+            });
+        }
+
+        function closeEditModalMessage() {
+            const editModalMessage = document.getElementById("edit-modal-message");
+            editModalMessage.classList.add("d-none");
         }
     </script>
 </body>

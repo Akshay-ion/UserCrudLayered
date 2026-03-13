@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTO\UserDTO;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
 use App\Services\UserService;
 use Exception;
@@ -50,22 +51,33 @@ class UserController extends Controller
         }
     }
 
-    public function update(StoreUserRequest $request)
+    public function show($id){
+        $user = $this->userService->getUserById($id);
+
+        return response()->json([
+            'status' => 200,
+            'data' => $user
+        ]);
+    }
+
+    public function update($id, UpdateUserRequest $request)
     {
-        try{
+        try {
+
             $dto = UserDTO::fromRequest($request);
 
-            $this->userService->udpateUser($dto);
+            $this->userService->updateUser($id, $dto);
 
             return response()->json([
                 'status' => 200,
                 'message' => 'User Updated Successfully'
             ]);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
+
             return response()->json([
                 'status' => 500,
-                'message' => 'Something Went Wrong: '. $e->getMessage(),
+                'message' => 'Something Went Wrong: ' . $e->getMessage(),
             ]);
         }
     }

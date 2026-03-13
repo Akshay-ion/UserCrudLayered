@@ -28,12 +28,14 @@ class UserService
         ]);
     }
 
-    public function udpateUser(UserDTO $dto)
+    public function getUserById($id)
     {
-        return $this->repo->create([
-            'name' => $dto->name,
-            'email' => $dto->email
-        ]);
+        return $this->repo->getUserById($id);
+    }
+
+    public function updateUser($id, UserDTO $dto)
+    {
+        return $this->repo->updateUser($id, $dto);
     }
 
     public function deleteUser($id)
