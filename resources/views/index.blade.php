@@ -114,7 +114,7 @@
 
                 document.getElementById("usersTable").innerHTML = html;
 
-                renderPagination(data);
+                renderPagination(data.data);
 
             })
             .catch(error => {
@@ -126,14 +126,46 @@
 
             let html = "";
 
-            for(let i = 1; i <= data.last_page; i++){
+            let current = data.current_page;
+            let last = data.last_page;
 
+            let start = Math.max(current - 2, 1);
+            let end = Math.min(current + 2, last);
+
+            // Previous button
+            if(current > 1){
+                html += `<button class="btn btn-sm btn-secondary me-1"
+                        onclick="getUsers(${current - 1})">Prev</button>`;
+            }
+
+            // First page
+            if(start > 1){
+                html += `<button class="btn btn-sm btn-secondary me-1"
+                        onclick="getUsers(1)">1</button>`;
+                html += `<span class="mx-1">...</span>`;
+            }
+
+            // Page numbers
+            for(let i = start; i <= end; i++){
                 html += `
                     <button onclick="getUsers(${i})"
-                        class="btn btn-sm ${i == data.current_page ? 'btn-primary' : 'btn-secondary'}">
+                        class="btn btn-sm me-1 ${i == current ? 'btn-primary' : 'btn-secondary'}">
                         ${i}
                     </button>
                 `;
+            }
+
+            // Last page
+            if(end < last){
+                html += `<span class="mx-1">...</span>`;
+                html += `<button class="btn btn-sm btn-secondary me-1"
+                        onclick="getUsers(${last})">${last}</button>`;
+            }
+
+            // Next button
+            if(current < last){
+                html += `<button class="btn btn-sm btn-secondary"
+                        onclick="getUsers(${current + 1})">Next</button>`;
             }
 
             document.getElementById("pagination").innerHTML = html;

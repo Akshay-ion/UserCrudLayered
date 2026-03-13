@@ -8,3 +8,21 @@ Route::resource('user', UserController::class);
 Route::get('/', function(){
     return view('index');
 });
+
+Route::get('insert', function(){
+
+    $users = [];
+
+    for($i = 0; $i < 100; $i++){
+        $name = Illuminate\Support\Str::random(8);
+
+        $users[] = [
+            'name' => $name,
+            'email' => $name . '@gmail.com',
+        ];
+    }
+
+    App\Models\User::insert($users);
+
+    return "100 users inserted successfully";
+});
