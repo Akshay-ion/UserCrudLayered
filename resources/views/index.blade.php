@@ -138,9 +138,13 @@
             clearTimeout(searchTimer);
 
             searchTimer = setTimeout(() => {
-                let search = this.value;
-                getUsers(1, search, currentPerPage);
+
+                currentSearch = this.value;
+
+                getUsers(1, currentSearch, currentPerPage);
+
             }, 400);
+
         });
 
         document.getElementById("per-page").addEventListener("change", function(){
@@ -160,7 +164,7 @@
             currentPerPage = perPage;
             console.log(currentPerPage);
 
-            fetch(`/user?page=${page}&search=${search}&perPage=${perPage}&_=${Date.now()}`, { // prevent caching
+            fetch(`/user?page=${page}&search=${encodeURIComponent(search)}&perPage=${perPage}&_=${Date.now()}`, { // prevent caching
                 method: "GET",
                 headers: { "Accept": "application/json" }
             })
@@ -172,15 +176,15 @@
                 if(users.length === 0){
                     html = `<tr><td colspan="4" class="text-center">No Users Found</td></tr>`;
                 } else {
-                    users.forEach((user, index) => {
+                    users.forEach(({id, name, email}, index) => {
                         html += `
-                            <tr id="user-row-${user.id}">
+                            <tr id="user-row-${id}">
                                 <td>${(currentPage - 1) * currentPerPage + index + 1}</td>
-                                <td>${user.name}</td>
-                                <td>${user.email}</td>
+                                <td>${name}</td>
+                                <td>${email}</td>
                                 <td>
-                                    <div class="btn btn-sm btn-info" onclick="editUser(${user.id})">Edit</div>
-                                    <div class="btn btn-sm btn-danger user-row-${user.id}" onclick="deleteUser(${user.id})">Delete</div>
+                                    <div class="btn btn-sm btn-info" onclick="editUser(${id})">Edit</div>
+                                    <div class="btn btn-sm btn-danger user-row-${id}" onclick="deleteUser(${id})">Delete</div>
                                 </td>
                             </tr>
                         `;
@@ -242,7 +246,10 @@
             // Next
             html += `
                 <li class="page-item ${current === last ? 'disabled' : ''}">
-                    <button class="page-link" onclick="getUsers(${current + 1})">Next</button>
+                    <button class="page-link"
+                        onclick="${current < last ? `getUsers(${current + 1})` : ''}">
+                        Next
+                    </button>
                 </li>
             `;
 
