@@ -15,44 +15,44 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between">
                 <h3>User Crud</h3>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                <button type="button" class="btn btn-sm btn-primary " data-bs-toggle="modal" data-bs-target="#createModal">
                     Create User
                 </button>
             </div>
             <div class="card-body">
-                <input type="text" class="form-control" id="search" placeholder="Search Users">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
+                <input type="text" class="form-control mb-2" id="search" placeholder="Search Users">
+                <div class="table-responsive overflow-auto" style="max-height:350px;">
+                    <table class="table table-striped mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
 
-                    </tbody>
-                </table>
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                </nav>
 
-                    <!-- Pagination -->
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
-                    </nav>
-
-                    <!-- Per Page -->
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="per-page" class="mb-0 fw-semibold">Rows:</label>
-                        <select id="per-page" class="form-select form-select-sm w-auto">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-
+                <!-- Per Page -->
+                <div class="d-flex align-items-center gap-2">
+                    <label for="per-page" class="mb-0 fw-semibold">Rows:</label>
+                    <select id="per-page" class="form-select form-select-sm w-auto">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
                 </div>
             </div>
         </div>
