@@ -16,15 +16,18 @@ class UserRepository
                 $q->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%");
             });
-
-            // Reset to first page if searching
-            $page = request()->get('page', 1);
-            if ($page > 1) {
-                request()->merge(['page' => 1]);
-            }
         }
 
-        return $query->paginate($perPage)->appends(request()->all());
+        $page = request()->get('page', 1);
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // If requested page exceeds last page, reload using last page
+        if ($page > $paginator->lastPage()) {
+            $paginator = $query->paginate($perPage, ['*'], 'page', $paginator->lastPage());
+        }
+
+        return $paginator->appends(request()->all());
     }
 
     public function create($data)

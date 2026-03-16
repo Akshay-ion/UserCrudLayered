@@ -13,8 +13,11 @@ Route::get('insert', function(){
 
     $users = [];
 
+    $count = 0;
     for($i = 0; $i < 100; $i++){
-        $name = Illuminate\Support\Str::random(8);
+        // $name = Illuminate\Support\Str::random(8);
+        $count += 1;
+        $name = "Akshay" . $count;
 
         $users[] = [
             'name' => $name,

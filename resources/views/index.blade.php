@@ -37,7 +37,9 @@
                 <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
 
                     <!-- Pagination -->
-                    <div id="pagination" class="d-flex gap-1"></div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                    </nav>
 
                     <!-- Per Page -->
                     <div class="d-flex align-items-center gap-2">
@@ -129,18 +131,27 @@
             getUsers();
         });
 
+        let searchTimer;
+
         document.getElementById("search").addEventListener("keyup", function(){
 
-            let search = this.value;
+            clearTimeout(searchTimer);
 
-            getUsers(currentPage, search, currentPerPage);
+            searchTimer = setTimeout(() => {
+                let search = this.value;
+                getUsers(1, search, currentPerPage);
+            }, 400);
         });
 
         document.getElementById("per-page").addEventListener("change", function(){
 
-            let perPage = this.value;
+            let newPerPage = parseInt(this.value);
 
-            getUsers(currentPage, currentSearch, perPage);
+            let currentIndex = (currentPage - 1) * currentPerPage;
+
+            let newPage = Math.floor(currentIndex / newPerPage) + 1;
+
+            getUsers(newPage, currentSearch, newPerPage);
         });
 
         function getUsers(page = 1, search = currentSearch, perPage = currentPerPage){
@@ -164,7 +175,7 @@
                     users.forEach((user, index) => {
                         html += `
                             <tr id="user-row-${user.id}">
-                                <td>${index + 1}</td>
+                                <td>${(currentPage - 1) * currentPerPage + index + 1}</td>
                                 <td>${user.name}</td>
                                 <td>${user.email}</td>
                                 <td>
@@ -192,41 +203,48 @@
             let start = Math.max(current - 2, 1);
             let end = Math.min(current + 2, last);
 
-            // Previous button
-            if(current > 1){
-                html += `<button class="btn btn-sm btn-secondary me-1"
-                        onclick="getUsers(${current - 1})">Prev</button>`;
-            }
+            // Previous
+            html += `
+                <li class="page-item ${current === 1 ? 'disabled' : ''}">
+                    <button class="page-link" onclick="${current > 1 ? `getUsers(${current - 1})` : ''}">Previous</button>
+                </li>
+            `;
 
             // First page
             if(start > 1){
-                html += `<button class="btn btn-sm btn-secondary me-1"
-                        onclick="getUsers(1)">1</button>`;
-                html += `<span class="mx-1">...</span>`;
+                html += `
+                    <li class="page-item">
+                        <button class="page-link" onclick="getUsers(1)">1</button>
+                    </li>
+                `;
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
             }
 
             // Page numbers
             for(let i = start; i <= end; i++){
                 html += `
-                    <button onclick="getUsers(${i})"
-                        class="btn btn-sm me-1 ${i == current ? 'btn-primary' : 'btn-secondary'}">
-                        ${i}
-                    </button>
+                    <li class="page-item ${i === current ? 'active' : ''}">
+                        <button class="page-link" onclick="getUsers(${i})">${i}</button>
+                    </li>
                 `;
             }
 
             // Last page
             if(end < last){
-                html += `<span class="mx-1">...</span>`;
-                html += `<button class="btn btn-sm btn-secondary me-1"
-                        onclick="getUsers(${last})">${last}</button>`;
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                html += `
+                    <li class="page-item">
+                        <button class="page-link" onclick="getUsers(${last})">${last}</button>
+                    </li>
+                `;
             }
 
-            // Next button
-            if(current < last){
-                html += `<button class="btn btn-sm btn-secondary"
-                        onclick="getUsers(${current + 1})">Next</button>`;
-            }
+            // Next
+            html += `
+                <li class="page-item ${current === last ? 'disabled' : ''}">
+                    <button class="page-link" onclick="getUsers(${current + 1})">Next</button>
+                </li>
+            `;
 
             document.getElementById("pagination").innerHTML = html;
         }
@@ -298,7 +316,7 @@
                     <button type="button" class="btn-close" aria-label="Close" onclick="closeMessage()"></button>
                 `;
 
-                getUsers(currentPage, currentSearch);
+                getUsers(currentPage, currentSearch, currentPerPage);
                 createModal.hide();
                 resetStoreForm();
             })
@@ -383,7 +401,7 @@
                     currentPage--;
                 }
 
-                getUsers(currentPage, currentSearch);
+                getUsers(currentPage, currentSearch, currentPerPage);
 
                 message.classList.remove("d-none");
                 message.classList.add("alert-success");
