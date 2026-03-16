@@ -34,7 +34,24 @@
 
                     </tbody>
                 </table>
-                <div id="pagination" class="mt-3"></div>
+                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+
+                    <!-- Pagination -->
+                    <div id="pagination" class="d-flex gap-1"></div>
+
+                    <!-- Per Page -->
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="per-page" class="mb-0 fw-semibold">Rows:</label>
+                        <select id="per-page" class="form-select form-select-sm w-auto">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+
+                </div>
             </div>
         </div>
 
@@ -101,9 +118,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
 
-        currentPage = 1;
+        let currentPage = 1;
+        let currentPerPage = 5;
+        let currentSearch = "";
 
         document.addEventListener("DOMContentLoaded", function () {
+            currentSearch = document.getElementById("search").value;
+            currentPerPage = document.getElementById("per-page").value;
+
             getUsers();
         });
 
@@ -111,16 +133,23 @@
 
             let search = this.value;
 
-            getUsers(currentPage, search);
+            getUsers(currentPage, search, currentPerPage);
         });
 
-        let currentSearch = document.getElementById("search").value;
+        document.getElementById("per-page").addEventListener("change", function(){
 
-        function getUsers(page = 1, search = currentSearch){
+            let perPage = this.value;
+
+            getUsers(currentPage, currentSearch, perPage);
+        });
+
+        function getUsers(page = 1, search = currentSearch, perPage = currentPerPage){
             currentPage = page; // FIXED
             currentSearch = search;
+            currentPerPage = perPage;
+            console.log(currentPerPage);
 
-            fetch(`/user?page=${page}&search=${search}&_=${Date.now()}`, { // prevent caching
+            fetch(`/user?page=${page}&search=${search}&perPage=${perPage}&_=${Date.now()}`, { // prevent caching
                 method: "GET",
                 headers: { "Accept": "application/json" }
             })

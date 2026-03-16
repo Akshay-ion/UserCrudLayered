@@ -22,7 +22,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $users = $this->userService->getUsers(5, $request->search);
+        $users = $this->userService->getUsers($request->perPage, $request->search);
 
         return response()->json([
             'status' => 200,
