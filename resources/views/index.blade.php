@@ -574,6 +574,46 @@
             });
         }
 
+        // const createModalEl = document.getElementById('createModal');
+
+        createModalEl.addEventListener('hidden.bs.modal', function () {
+
+            const username = document.getElementById("username");
+            const email = document.getElementById("email");
+            const userId = document.getElementById("userId");
+
+            const usernameMessage = document.getElementById("username-message");
+            const emailMessage = document.getElementById("email-message");
+            const createModalMessage = document.getElementById("create-modal-message");
+
+            if (username) {
+                username.value = "";
+                username.classList.remove("is-invalid", "is-valid");
+            }
+
+            if (email) {
+                email.value = "";
+                email.classList.remove("is-invalid", "is-valid");
+            }
+
+            if (userId) userId.value = "";
+
+            if (usernameMessage) {
+                usernameMessage.classList.add("d-none");
+                usernameMessage.innerText = "";
+            }
+
+            if (emailMessage) {
+                emailMessage.classList.add("d-none");
+                emailMessage.innerText = "";
+            }
+
+            if (createModalMessage) {
+                createModalMessage.classList.add("d-none");
+                createModalMessage.innerText = "";
+            }
+        });
+
         const editModalEl = document.getElementById('editModal');
 
         editModalEl.addEventListener('hidden.bs.modal', function () {
