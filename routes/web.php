@@ -16,7 +16,7 @@ Route::get('insert', function(){
     $count = 0;
     for($i = 0; $i < 1000; $i++){
         // $name = Illuminate\Support\Str::random(8);
-        $count += 102;
+        $count += 1;
         $name = "Akshay" . $count;
 
         $users[] = [
