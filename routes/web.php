@@ -14,9 +14,9 @@ Route::get('insert', function(){
     $users = [];
 
     $count = 0;
-    for($i = 0; $i < 100; $i++){
+    for($i = 0; $i < 100000; $i++){
         // $name = Illuminate\Support\Str::random(8);
-        $count += 1;
+        $count += 102;
         $name = "Akshay" . $count;
 
         $users[] = [
@@ -27,5 +27,5 @@ Route::get('insert', function(){
 
     App\Models\User::insert($users);
 
-    return "100 users inserted successfully";
+    return "1000 users inserted successfully";
 });
