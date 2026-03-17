@@ -9,25 +9,15 @@ class UserRepository
 {
     public function all($perPage = 5, $search = null)
     {
-        $query = User::query();
+        $query = User::query()
+            ->select('id', 'name', 'email');
 
         if ($search) {
-            $query->where(function($q) use ($search){
-                $q->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%");
-            });
+            $query->whereFullText(['name', 'email'], $search);
         }
 
-        $page = request()->get('page', 1);
-
-        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // If requested page exceeds last page, reload using last page
-        if ($page > $paginator->lastPage()) {
-            $paginator = $query->paginate($perPage, ['*'], 'page', $paginator->lastPage());
-        }
-
-        return $paginator->appends(request()->all());
+        return $query->paginate($perPage)
+                    ->appends(request()->query());
     }
 
     public function create($data)

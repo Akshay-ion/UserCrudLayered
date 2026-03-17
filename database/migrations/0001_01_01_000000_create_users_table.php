@@ -13,10 +13,16 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+
+            $table->string('name')->index();
             $table->string('email')->unique();
+
             $table->timestamps();
+
+            $table->fullText(['name', 'email']);
         });
+
+        // DB::statement('ALTER TABLE users ADD FULLTEXT users_fulltext_index(name, email)');
     }
 
     /**

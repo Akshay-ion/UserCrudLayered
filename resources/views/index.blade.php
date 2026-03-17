@@ -173,7 +173,7 @@
             currentSearch = search;
             currentPerPage = perPage;
 
-            fetch(`/user?page=${page}&search=${encodeURIComponent(search)}&perPage=${perPage}&_=${Date.now()}`)
+            fetch(`/user?page=${page}&search=${encodeURIComponent(search)}&perPage=${perPage}`)
             .then(response => response.json())
             .then(data => {
                 let users = data.data.data;
