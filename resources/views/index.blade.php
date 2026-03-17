@@ -96,7 +96,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="d-none alert" id="edit-modal-message"></div>
+                        <div id="edit-modal-message" class="d-none alert"></div>
 
                         <div class="form-group">
                             <label for="edit-username" class="form-label">Username:</label>
@@ -476,13 +476,16 @@
             email.classList.remove("is-invalid");
             emailMessage.classList.add("d-none");
             editModalMessage.classList.add("d-none");
-            editModalMessage.classList.remove("alert", "alert-danger");
+            editModalMessage.classList.remove("alert-danger");
 
             if (!username.value) {
                 username.classList.add("is-invalid");
                 usernameMessage.classList.remove("d-none");
                 usernameMessage.classList.add("text-danger");
                 usernameMessage.innerText = "Username is required";
+
+                updateBtn.disabled = false;
+                updateBtn.innerText = "Update";
                 return;
             }
 
@@ -491,6 +494,9 @@
                 emailMessage.classList.remove("d-none");
                 emailMessage.classList.add("text-danger");
                 emailMessage.innerText = "Email is required";
+
+                updateBtn.disabled = false;
+                updateBtn.innerText = "Update";
                 return;
             }
 
@@ -555,10 +561,10 @@
                 // General error message
                 if (error.message) {
                     editModalMessage.classList.remove("d-none");
-                    editModalMessage.classList.add("alert", "alert-danger", "alert-dismissible", "fade", "show");
+                    editModalMessage.classList.add("alert-danger");
                     editModalMessage.innerHTML = `
                         ${error.message}
-                        <button type="button" class="btn-close" aria-label="Close" onclick="closeEditModalMessage()"></button>
+                        <button type="button" class="btn-close" onclick="this.parentElement.classList.add('d-none')"></button>
                     `;
                 }
             })
@@ -568,10 +574,45 @@
             });
         }
 
-        function closeEditModalMessage() {
+        const editModalEl = document.getElementById('editModal');
+
+        editModalEl.addEventListener('hidden.bs.modal', function () {
+
+            const username = document.getElementById("edit-username");
+            const email = document.getElementById("edit-email");
+            const userId = document.getElementById("userId");
+
+            const usernameMessage = document.getElementById("edit-username-message");
+            const emailMessage = document.getElementById("edit-email-message");
             const editModalMessage = document.getElementById("edit-modal-message");
-            editModalMessage.classList.add("d-none");
-        }
+
+            if (username) {
+                username.value = "";
+                username.classList.remove("is-invalid", "is-valid");
+            }
+
+            if (email) {
+                email.value = "";
+                email.classList.remove("is-invalid", "is-valid");
+            }
+
+            if (userId) userId.value = "";
+
+            if (usernameMessage) {
+                usernameMessage.classList.add("d-none");
+                usernameMessage.innerText = "";
+            }
+
+            if (emailMessage) {
+                emailMessage.classList.add("d-none");
+                emailMessage.innerText = "";
+            }
+
+            if (editModalMessage) {
+                editModalMessage.classList.add("d-none");
+                editModalMessage.innerText = "";
+            }
+        });
     </script>
 </body>
 </html>
