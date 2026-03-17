@@ -36,6 +36,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div id="table-loader" class="text-center my-3 d-none">
+                    <div class="spinner-border text-primary"></div>
+                </div>
             </div>
             <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <!-- Pagination -->
@@ -159,15 +162,18 @@
         });
 
         function getUsers(page = 1, search = currentSearch, perPage = currentPerPage){
-            currentPage = page; // FIXED
+
+            const loader = document.getElementById("table-loader");
+            const table = document.getElementById("usersTable");
+
+            loader.classList.remove("d-none");
+            table.innerHTML = "";
+
+            currentPage = page;
             currentSearch = search;
             currentPerPage = perPage;
-            console.log(currentPerPage);
 
-            fetch(`/user?page=${page}&search=${encodeURIComponent(search)}&perPage=${perPage}&_=${Date.now()}`, { // prevent caching
-                method: "GET",
-                headers: { "Accept": "application/json" }
-            })
+            fetch(`/user?page=${page}&search=${encodeURIComponent(search)}&perPage=${perPage}&_=${Date.now()}`)
             .then(response => response.json())
             .then(data => {
                 let users = data.data.data;
@@ -184,17 +190,20 @@
                                 <td>${email}</td>
                                 <td>
                                     <div class="btn btn-sm btn-info" onclick="editUser(${id})">Edit</div>
-                                    <div class="btn btn-sm btn-danger user-row-${id}" onclick="deleteUser(${id})">Delete</div>
+                                    <div class="btn btn-sm btn-danger" onclick="deleteUser(${id})">Delete</div>
                                 </td>
                             </tr>
                         `;
                     });
                 }
 
-                document.getElementById("usersTable").innerHTML = html;
+                table.innerHTML = html;
                 renderPagination(data.data);
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => console.error(error))
+            .finally(() => {
+                loader.classList.add("d-none");
+            });
         }
 
         function renderPagination(data){
